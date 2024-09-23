@@ -1,5 +1,5 @@
 
-import { Module } from '@nestjs.common';
+import { Module } from '@nestjs/common';
 import { OrchestrationService } from './orchestration.service';
 import { OrchestrationController } from './orchestration.controller';
 

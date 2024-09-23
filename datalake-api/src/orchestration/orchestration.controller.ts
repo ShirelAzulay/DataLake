@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body } from '@nestjs.common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { OrchestrationService } from './orchestration.service';
 
 @Controller('orchestrate')

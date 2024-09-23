@@ -1,5 +1,5 @@
 
-import { Controller, Get, Param, Res } from '@nestjs.common';
+import { Controller, Get, Param, Res } from '@nestjs/common';
 import { DownloadService } from './download.service';
 import { Response } from 'express';
 
