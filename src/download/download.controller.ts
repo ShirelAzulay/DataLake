@@ -1,4 +1,3 @@
-
 import { Controller, Get, Param, Res } from '@nestjs/common';
 import { DownloadService } from './download.service';
 import { Response } from 'express';
@@ -7,9 +6,22 @@ import { Response } from 'express';
 export class DownloadController {
   constructor(private readonly downloadService: DownloadService) {}
 
+  /**
+   * Handles the download of a directory of files.
+   * @param {string} uniqueId - The unique identifier for the directory.
+   * @param {Response} res - The response object.
+   */
   @Get(':unique_id')
   async downloadDirectory(@Param('unique_id') uniqueId: string, @Res() res: Response) {
-    const filePath = await this.downloadService.downloadDirectory(uniqueId);
-    res.download(filePath);
+    try {
+      const filePath = await this.downloadService.downloadDirectory(uniqueId);
+      if (filePath) {
+        res.download(filePath);
+      } else {
+        res.status(404).send('File not found');
+      }
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
   }
 }
