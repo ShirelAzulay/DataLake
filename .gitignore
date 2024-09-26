@@ -21397,3 +21397,4 @@
 /node_modules/.package-lock.json
 /.idea/inspectionProfiles/Project_Default.xml
 /.idea/vcs.xml
+/node_modules/*
