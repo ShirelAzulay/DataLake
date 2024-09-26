@@ -12,16 +12,16 @@ export class DownloadController {
    * @param {Response} res - The response object.
    */
   @Get(':unique_id')
-  async downloadDirectory(@Param('unique_id') uniqueId: string, @Res() res: Response) {
+  async getFileLinks(@Param('unique_id') uniqueId: string, @Res() res: Response) {
     try {
-      const filePath = await this.downloadService.downloadDirectory(uniqueId);
-      if (filePath) {
-        res.download(filePath);
+      const links = await this.downloadService.getFileLinks(uniqueId);
+      if (links) {
+        res.json({ status: 'success', links });
       } else {
         res.status(404).send('File not found');
       }
     } catch (error) {
-      res.status(500).send({ message: error.message });
+      res.status(500).send({ status: 'error', message: error.message });
     }
   }
 }

@@ -3,6 +3,7 @@ import { Storage } from '@google-cloud/storage';
 import { Firestore, FieldValue } from '@google-cloud/firestore';
 import * as path from 'path';
 import { default as pRetry } from 'p-retry';
+import { v4 as uuidv4 } from 'uuid'; // To generate unique IDs
 
 @Injectable()
 export class UploadService {
@@ -84,9 +85,10 @@ export class UploadService {
   private async updateFirestore(uniqueId: string, fullKey: string, blobPath: string): Promise<void> {
     this.logger.log(`Updating Firestore for uniqueId ${uniqueId} and fullKey ${fullKey}`);
 
+    const id = uuidv4();
     await pRetry(() =>
             this.firestore.collection(this.collectionName).doc(uniqueId.slice(0, 5)).set({
-              paths: FieldValue.arrayUnion(blobPath)
+              paths: FieldValue.arrayUnion({ id, path: fullKey })
             }, { merge: true }),
         { retries: 3 }
     ).catch(error => {
@@ -94,17 +96,16 @@ export class UploadService {
       throw new Error(`Failed to update Firestore for ${uniqueId}`);
     });
 
-    if (fullKey.length === 7) {
-      await pRetry(() =>
-              this.firestore.collection(this.collectionName).doc(fullKey).set({
-                paths: [blobPath]
-              }),
-          { retries: 3 }
-      ).catch(error => {
-        this.logger.error(`Failed to update Firestore for ${fullKey}: ${error.message}`);
-        throw new Error(`Failed to update Firestore for ${fullKey}`);
-      });
-    }
+    await pRetry(() =>
+            this.firestore.collection(this.collectionName).doc(fullKey).set({
+              id,
+              path: fullKey
+            }),
+        { retries: 3 }
+    ).catch(error => {
+      this.logger.error(`Failed to update Firestore for ${fullKey}: ${error.message}`);
+      throw new Error(`Failed to update Firestore for ${fullKey}`);
+    });
 
     this.logger.log(`Successfully updated Firestore for ${uniqueId} and ${fullKey}`);
   }
